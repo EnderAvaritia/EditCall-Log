@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.TimePicker;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     int arYear, arMonth, arDay;
     int type = 0; // 1==missed 2==outgoing 3==incomming 0==error
     int duration_min = 5;
+    int duration_sec = 0;
 
     RadioButton missed_btn, out_btn, incomming_btn;
     Button numberpick_btn, durationpick_btn;
@@ -126,19 +128,39 @@ public class MainActivity extends AppCompatActivity {
         durationpick_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NumberPicker np = new NumberPicker(MainActivity.this);
-                np.setMinValue(1);
-                np.setMaxValue(120);
+                LinearLayout layout = new LinearLayout(MainActivity.this);
+                layout.setOrientation(LinearLayout.HORIZONTAL);
+                layout.setPadding(50, 20, 50, 20);
+
+                NumberPicker minutePicker = new NumberPicker(MainActivity.this);
+                minutePicker.setMinValue(0);
+                minutePicker.setMaxValue(120);
+                minutePicker.setValue(duration_min);
+
+                NumberPicker secondPicker = new NumberPicker(MainActivity.this);
+                secondPicker.setMinValue(0);
+                secondPicker.setMaxValue(59);
+                secondPicker.setValue(duration_sec);
+
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+                layout.addView(minutePicker, lp);
+                layout.addView(secondPicker, lp);
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
-                ab.setTitle("Duration of call(minutes)");
-                ab.setView(np);
+                ab.setTitle("Duration (min : sec)");
+                ab.setView(layout);
                 ab.setNegativeButton("cancel", null);
                 ab.setPositiveButton("set", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        duration_min = np.getValue();
-                        durationpick_btn.setText(duration_min+" minutes");
+                        duration_min = minutePicker.getValue();
+                        duration_sec = secondPicker.getValue();
+                        if (duration_sec > 0) {
+                            durationpick_btn.setText(duration_min + " min " + duration_sec + " sec");
+                        } else {
+                            durationpick_btn.setText(duration_min + " minutes");
+                        }
                     }
                 });
                 ab.create().show();
@@ -223,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                     ContentValues values = new ContentValues();
                     values.put(android.provider.CallLog.Calls.NUMBER, mobilenumber);
                     values.put(android.provider.CallLog.Calls.DATE, cal.getTimeInMillis());
-                    values.put(android.provider.CallLog.Calls.DURATION, duration_min * 60);
+                    values.put(android.provider.CallLog.Calls.DURATION, duration_min * 60 + duration_sec);
 
 
                     if (type == 0) {
@@ -297,8 +319,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        int style = AlertDialog.THEME_HOLO_LIGHT;
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, style, onTimeSetListener, hour, minute, false);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hour, minute, false);
         timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
     }
@@ -349,8 +370,7 @@ public class MainActivity extends AppCompatActivity {
         int day = cal.get(Calendar.DAY_OF_MONTH);
 
 
-        int style = AlertDialog.THEME_HOLO_LIGHT;
-        datePickerDialog = new DatePickerDialog(this, style, dateSetListener, year, month, day);
+        datePickerDialog = new DatePickerDialog(this, dateSetListener, year, month, day);
         datePickerDialog.setTitle("Select Date");
         datePickerDialog.show();
 

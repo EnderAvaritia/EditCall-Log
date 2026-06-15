@@ -134,12 +134,11 @@ public class MainActivity extends AppCompatActivity {
                 layout.setOrientation(LinearLayout.VERTICAL);
                 layout.setPadding(40, 10, 40, 10);
 
-                // Clock face TimePicker for duration
+                // Clock face TimePicker for duration — start at 00:00 (12 o'clock top)
+                // Hour hand at top (0), minute hand preserves existing seconds
                 TimePicker durationPicker = new TimePicker(MainActivity.this);
                 durationPicker.setIs24HourView(true);
-                int clockMin = Math.min(duration_min, 23);
-                int extraMin = duration_min - clockMin;
-                durationPicker.setHour(clockMin);
+                durationPicker.setHour(0);
                 durationPicker.setMinute(duration_sec);
                 durationPicker.setEnabled(true);
                 layout.addView(durationPicker);
@@ -152,8 +151,9 @@ public class MainActivity extends AppCompatActivity {
                 totalLabel.setPadding(0, 10, 0, 10);
                 layout.addView(totalLabel);
 
-                // Extra minutes beyond clock range (0-23)
-                final int[] extraMinutes = {extraMin};
+                // Extra minutes preserve existing value so Total shows it,
+                // while clock face starts clean at top position
+                final int[] extraMinutes = {duration_min};
 
                 // Quick-adjust buttons layout
                 LinearLayout btnLayout = new LinearLayout(MainActivity.this);

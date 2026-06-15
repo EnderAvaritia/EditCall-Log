@@ -8,15 +8,17 @@ import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.CallLog;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -40,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     DatePickerDialog datePickerDialog;
     Button timepick, datepick;
     int hour, minute;
-    String ap, strmonth;
+    String strmonth;
     int arYear, arMonth, arDay;
     int type = 0; // 1==missed 2==outgoing 3==incomming 0==error
     int duration_min = 5;
@@ -129,23 +131,67 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 LinearLayout layout = new LinearLayout(MainActivity.this);
-                layout.setOrientation(LinearLayout.HORIZONTAL);
-                layout.setPadding(50, 20, 50, 20);
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.setPadding(40, 10, 40, 10);
 
-                NumberPicker minutePicker = new NumberPicker(MainActivity.this);
-                minutePicker.setMinValue(0);
-                minutePicker.setMaxValue(120);
-                minutePicker.setValue(duration_min);
+                // Clock face TimePicker for duration
+                TimePicker durationPicker = new TimePicker(MainActivity.this);
+                durationPicker.setIs24HourView(true);
+                int clockMin = Math.min(duration_min, 23);
+                int extraMin = duration_min - clockMin;
+                durationPicker.setHour(clockMin);
+                durationPicker.setMinute(duration_sec);
+                durationPicker.setEnabled(true);
+                layout.addView(durationPicker);
 
-                NumberPicker secondPicker = new NumberPicker(MainActivity.this);
-                secondPicker.setMinValue(0);
-                secondPicker.setMaxValue(59);
-                secondPicker.setValue(duration_sec);
+                // Total label
+                TextView totalLabel = new TextView(MainActivity.this);
+                totalLabel.setGravity(Gravity.CENTER);
+                totalLabel.setTextSize(18);
+                totalLabel.setTextColor(Color.BLACK);
+                totalLabel.setPadding(0, 10, 0, 10);
+                layout.addView(totalLabel);
 
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                        0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-                layout.addView(minutePicker, lp);
-                layout.addView(secondPicker, lp);
+                // Extra minutes beyond clock range (0-23)
+                final int[] extraMinutes = {extraMin};
+
+                // Quick-adjust buttons layout
+                LinearLayout btnLayout = new LinearLayout(MainActivity.this);
+                btnLayout.setOrientation(LinearLayout.HORIZONTAL);
+                btnLayout.setGravity(Gravity.CENTER);
+
+                Button minusBtn = new Button(MainActivity.this);
+                minusBtn.setText("-15m");
+                minusBtn.setPadding(20, 8, 20, 8);
+                btnLayout.addView(minusBtn);
+
+                Button plusBtn = new Button(MainActivity.this);
+                plusBtn.setText("+15m");
+                plusBtn.setPadding(20, 8, 20, 8);
+                btnLayout.addView(plusBtn);
+
+                layout.addView(btnLayout);
+
+                // Update total label helper
+                Runnable updateLabel = () -> {
+                    int totalMin = durationPicker.getHour() + extraMinutes[0];
+                    int totalSec = durationPicker.getMinute();
+                    totalLabel.setText("Total: " + totalMin + " min " + totalSec + " sec");
+                };
+
+                durationPicker.setOnTimeChangedListener((picker, hourOfDay, minuteOfDay) -> updateLabel.run());
+
+                minusBtn.setOnClickListener(btn -> {
+                    extraMinutes[0] = Math.max(0, extraMinutes[0] - 15);
+                    updateLabel.run();
+                });
+
+                plusBtn.setOnClickListener(btn -> {
+                    extraMinutes[0] = Math.min(120, extraMinutes[0] + 15);
+                    updateLabel.run();
+                });
+
+                updateLabel.run();
 
                 AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
                 ab.setTitle("Duration (min : sec)");
@@ -154,8 +200,8 @@ public class MainActivity extends AppCompatActivity {
                 ab.setPositiveButton("set", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        duration_min = minutePicker.getValue();
-                        duration_sec = secondPicker.getValue();
+                        duration_min = durationPicker.getHour() + extraMinutes[0];
+                        duration_sec = durationPicker.getMinute();
                         if (duration_sec > 0) {
                             durationpick_btn.setText(duration_min + " min " + duration_sec + " sec");
                         } else {
@@ -230,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                if(arYear == 0 || ap == null || mobilenumber == null){
+                if(arYear == 0 || timepick.getText().toString().equals("Choose") || mobilenumber == null){
                     Toast.makeText(MainActivity.this, "fill all necessary details", Toast.LENGTH_SHORT).show();
                 } else {
                     Calendar cal = Calendar.getInstance();
@@ -290,36 +336,14 @@ public class MainActivity extends AppCompatActivity {
                 hour = selectedHour;
                 minute = selectedMinute;
 
-                int arhour = hour;
+                String strhour = hour < 10 ? "0" + hour : "" + hour;
+                String strmin = minute < 10 ? "0" + minute : "" + minute;
 
-                if (hour >= 12) {
-                    arhour=arhour-12;
-                    ap = "pm";
-                } else if (hour < 12) {
-                    ap = "am";
-                }
-
-                String strhour;
-                String strmin;
-
-                if (arhour < 10) {
-                    strhour = "0" + arhour;
-                } else {
-                    strhour = "" + arhour;
-                }
-
-                if (minute < 10) {
-                    strmin = "0" + minute;
-                } else {
-                    strmin = "" + minute;
-                }
-
-
-                timepick.setText(strhour + " : " + strmin + " " + ap);
+                timepick.setText(strhour + " : " + strmin);
             }
         };
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hour, minute, false);
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hour, minute, true);
         timePickerDialog.setTitle("Select Time");
         timePickerDialog.show();
     }

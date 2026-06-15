@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     String strmonth;
     int arYear, arMonth, arDay;
     int type = 0; // 1==missed 2==outgoing 3==incomming 0==error
-    int duration_min = 5;
+    int duration_min = 0;
     int duration_sec = 0;
 
     RadioButton missed_btn, out_btn, incomming_btn;

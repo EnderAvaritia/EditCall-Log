@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
     DatePickerDialog datePickerDialog;
     Button timepick, datepick;
     int hour, minute;
+    {
+        Calendar now = Calendar.getInstance();
+        hour = now.get(Calendar.HOUR_OF_DAY);
+        minute = now.get(Calendar.MINUTE);
+    }
     String strmonth;
     int arYear, arMonth, arDay;
     int type = 0; // 1==missed 2==outgoing 3==incomming 0==error
@@ -63,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
         timepick = findViewById(R.id.main_Timepick_button);
         datepick = findViewById(R.id.main_Datepick_button);
+        // Set default time button to current time
+        timepick.setText(String.format("%02d : %02d", hour, minute));
         missed_btn = findViewById(R.id.missed_btn);
         out_btn = findViewById(R.id.outgoing_btn);
         incomming_btn = findViewById(R.id.incomming_btn);

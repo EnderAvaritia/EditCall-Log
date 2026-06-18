@@ -55,9 +55,10 @@ jobs:
           path: app/build/outputs/apk/release/*.apk
           if-no-files-found: ignore
 
-  release:
+  # Publish to Releases on every push to main (continuous) or tag push (versioned)
+  publish:
     needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
@@ -67,8 +68,25 @@ jobs:
           name: app-debug-apk
           path: apk
 
-      - name: Create Release
+      # Versioned release on tag push (e.g. v1.0.0)
+      - name: Create versioned release
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: apk/*.apk
           generate_release_notes: true
+
+      # Continuous release on every push to main (always up-to-date)
+      - name: Create or update continuous release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Build
+          body: |
+            Auto-built from the latest commit on `main` branch.
+
+            Commit: ${{ github.sha }}
+            Date: ${{ github.event.head_commit.timestamp }}
+          files: apk/*.apk
+          prerelease: true

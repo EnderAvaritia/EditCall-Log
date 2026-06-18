@@ -42,11 +42,6 @@ public class MainActivity extends AppCompatActivity {
     DatePickerDialog datePickerDialog;
     Button timepick, datepick;
     int hour, minute;
-    {
-        Calendar now = Calendar.getInstance();
-        hour = now.get(Calendar.HOUR_OF_DAY);
-        minute = now.get(Calendar.MINUTE);
-    }
     String strmonth;
     int arYear, arMonth, arDay;
     int type = 0; // 1==missed 2==outgoing 3==incomming 0==error
@@ -68,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
 
         timepick = findViewById(R.id.main_Timepick_button);
         datepick = findViewById(R.id.main_Datepick_button);
-        // Set default time button to current time
-        timepick.setText(String.format("%02d : %02d", hour, minute));
         missed_btn = findViewById(R.id.missed_btn);
         out_btn = findViewById(R.id.outgoing_btn);
         incomming_btn = findViewById(R.id.incomming_btn);
@@ -199,23 +192,43 @@ public class MainActivity extends AppCompatActivity {
 
                 updateLabel.run();
 
+                // Action buttons at the very bottom of layout
+                LinearLayout actionLayout = new LinearLayout(MainActivity.this);
+                actionLayout.setOrientation(LinearLayout.HORIZONTAL);
+                actionLayout.setGravity(Gravity.CENTER);
+                actionLayout.setPadding(0, 15, 0, 0);
+
+                Button cancelBtn = new Button(MainActivity.this);
+                cancelBtn.setText("cancel");
+                cancelBtn.setPadding(30, 10, 30, 10);
+                actionLayout.addView(cancelBtn);
+
+                Button setBtn = new Button(MainActivity.this);
+                setBtn.setText("set");
+                setBtn.setPadding(30, 10, 30, 10);
+                actionLayout.addView(setBtn);
+
+                layout.addView(actionLayout);
+
                 AlertDialog.Builder ab = new AlertDialog.Builder(MainActivity.this);
                 ab.setTitle("Duration (min : sec)");
                 ab.setView(layout);
-                ab.setNegativeButton("cancel", null);
-                ab.setPositiveButton("set", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        duration_min = durationPicker.getHour() + extraMinutes[0];
-                        duration_sec = durationPicker.getMinute();
-                        if (duration_sec > 0) {
-                            durationpick_btn.setText(duration_min + " min " + duration_sec + " sec");
-                        } else {
-                            durationpick_btn.setText(duration_min + " minutes");
-                        }
+
+                AlertDialog durationDialog = ab.create();
+                durationDialog.show();
+
+                setBtn.setOnClickListener(btn -> {
+                    duration_min = durationPicker.getHour() + extraMinutes[0];
+                    duration_sec = durationPicker.getMinute();
+                    if (duration_sec > 0) {
+                        durationpick_btn.setText(duration_min + " min " + duration_sec + " sec");
+                    } else {
+                        durationpick_btn.setText(duration_min + " minutes");
                     }
+                    durationDialog.dismiss();
                 });
-                ab.create().show();
+
+                cancelBtn.setOnClickListener(btn -> durationDialog.dismiss());
             }
         });
 
@@ -336,6 +349,13 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void popTimePicker() {
+        // Lazy init: read current time on first click instead of at app startup
+        if (timepick.getText().toString().equals("Choose")) {
+            Calendar now = Calendar.getInstance();
+            hour = now.get(Calendar.HOUR_OF_DAY);
+            minute = now.get(Calendar.MINUTE);
+        }
+
         TimePickerDialog.OnTimeSetListener onTimeSetListener = new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {

@@ -187,6 +187,11 @@ public class MainActivity extends AppCompatActivity {
                 plusBtn.setPadding(20, 8, 20, 8);
                 btnLayout.addView(plusBtn);
 
+                Button randSecBtn = new Button(MainActivity.this);
+                randSecBtn.setText("Rand sec");
+                randSecBtn.setPadding(20, 8, 20, 8);
+                btnLayout.addView(randSecBtn);
+
                 layout.addView(btnLayout);
 
                 // Update total label helper
@@ -205,6 +210,12 @@ public class MainActivity extends AppCompatActivity {
 
                 plusBtn.setOnClickListener(btn -> {
                     extraMinutes[0] = Math.min(120, extraMinutes[0] + 15);
+                    updateLabel.run();
+                });
+
+                randSecBtn.setOnClickListener(btn -> {
+                    int randomSec = new java.util.Random().nextInt(60);
+                    durationPicker.setMinute(randomSec);
                     updateLabel.run();
                 });
 

@@ -97,6 +97,27 @@ public class MainActivity extends AppCompatActivity {
             timepick.setText(String.format("%02d : %02d", hour, minute));
         });
 
+        // Date icon sets date to today
+        findViewById(R.id.main_img_date).setOnClickListener(v -> {
+            Calendar today = Calendar.getInstance();
+            arYear = today.get(Calendar.YEAR);
+            arMonth = today.get(Calendar.MONTH) + 1;
+            arDay = today.get(Calendar.DAY_OF_MONTH);
+            String[] months = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"};
+            strmonth = months[arMonth - 1];
+            datepick.setText(arDay + " " + strmonth + " " + arYear);
+        });
+
+        // Duration icon randomizes seconds
+        findViewById(R.id.main_img_duration).setOnClickListener(v -> {
+            duration_sec = new java.util.Random().nextInt(60);
+            if (duration_sec > 0) {
+                durationpick_btn.setText(duration_min + " min " + duration_sec + " sec");
+            } else {
+                durationpick_btn.setText(duration_min + " minutes");
+            }
+        });
+
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {

@@ -5,6 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     CardView call_btn;
     String mobilenumber;
     AdView adView;
+    ImageView paste_btn;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -69,6 +73,20 @@ public class MainActivity extends AppCompatActivity {
         numberpick_btn = findViewById(R.id.main_numberpick_button);
         call_btn = findViewById(R.id.main_addcall_btn);
         durationpick_btn = findViewById(R.id.main_durationpick_button);
+        paste_btn = findViewById(R.id.main_img_number);
+
+        // Paste phone number from clipboard on icon click
+        paste_btn.setOnClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            if (clipboard != null && clipboard.hasPrimaryClip()) {
+                ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+                CharSequence pastedText = item.getText();
+                if (pastedText != null) {
+                    mobilenumber = pastedText.toString().trim();
+                    numberpick_btn.setText(mobilenumber);
+                }
+            }
+        });
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
@@ -371,6 +389,12 @@ public class MainActivity extends AppCompatActivity {
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, onTimeSetListener, hour, minute, true);
         timePickerDialog.setTitle("Select Time");
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Now", (dialog, which) -> {
+            Calendar now = Calendar.getInstance();
+            hour = now.get(Calendar.HOUR_OF_DAY);
+            minute = now.get(Calendar.MINUTE);
+            timepick.setText(String.format("%02d : %02d", hour, minute));
+        });
         timePickerDialog.show();
     }
 

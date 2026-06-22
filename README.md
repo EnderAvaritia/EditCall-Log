@@ -13,8 +13,14 @@ EditCall Log: An **Android application** designed to help you **manage your call
 - **Second-Level Duration:** Set call duration with both minutes and seconds precision.
 - **Clock Face Duration Picker:** Duration selector uses an analog clock dial starting at 00:00 (12 o'clock), with ±15m quick-adjust buttons for longer calls.
 - **Clipboard Paste:** Tap the phone icon to paste a number directly from clipboard.
+- **Quick-Action Icons:** Each row has a quick-action icon on the left:
+  - 📅 Tap date icon → set to today
+  - ⏰ Tap time icon → set to current time
+  - 📞 Tap phone icon → paste from clipboard
+  - 🔢 Tap duration icon → randomize seconds
 - **"Now" Button:** Time picker includes a "Now" button to instantly set the current time.
 - **Default Current Time:** Time picker defaults to the current time on first open.
+- **Random Seconds:** Duration picker has a "Rand sec" button for random second values.
 - **GitHub Actions Build:** Automated APK build on every push — published to Releases as "Latest Build".
 
 ## What's New
@@ -23,7 +29,9 @@ EditCall Log: An **Android application** designed to help you **manage your call
 - **🕐 Clock Face Pickers:** Time and duration selection now use analog clock dials instead of scroll wheels.
 - **📅 Calendar Picker:** Date selection uses the Material calendar view for a more intuitive experience.
 - **📋 Clipboard Paste:** Tap the phone icon to paste a number from clipboard.
-- **⏰ "Now" Button:** One-tap to set the time picker to the current moment.
+- **🔢 Random Seconds:** Tap the duration icon for random seconds, or use the "Rand sec" button in the picker.
+- **⏰ Quick Time:** Tap the time icon or use the "Now" button to set current time instantly.
+- **📅 Quick Date:** Tap the date icon to set today's date.
 - **🤖 Automated Builds:** APK is automatically built via GitHub Actions and published to Releases on every push.
 
 ## Screenshots

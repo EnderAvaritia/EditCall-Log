@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     CardView call_btn;
     String mobilenumber;
     AdView adView;
-    ImageView paste_btn;
+    ImageView paste_btn, time_now_btn;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -86,6 +86,15 @@ public class MainActivity extends AppCompatActivity {
                     numberpick_btn.setText(mobilenumber);
                 }
             }
+        });
+
+        // Time icon sets time to current moment
+        time_now_btn = findViewById(R.id.main_img_time);
+        time_now_btn.setOnClickListener(v -> {
+            Calendar now = Calendar.getInstance();
+            hour = now.get(Calendar.HOUR_OF_DAY);
+            minute = now.get(Calendar.MINUTE);
+            timepick.setText(String.format("%02d : %02d", hour, minute));
         });
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
